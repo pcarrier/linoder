@@ -1,3 +1,3 @@
 #!/bin/sh
 
-exec java -cp /usr/share/linoder/ "$@"
+exec java -cp /usr/share/linoder/\* com.github.pcarrier.linoder.cli.Main "$@"
