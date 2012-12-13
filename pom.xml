@@ -85,6 +85,7 @@
                             <goal>jdeb</goal>
                         </goals>
                         <configuration>
+                            <deb>[[buildDir]]/[[artifactId]]_[[version]]_all.[[extension]]</deb>
                             <timestamped>true</timestamped>
                             <verbose>true</verbose>
                             <dataSet>
