@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.SortedMap;
 
-@Command(name = "clone", description = "Clone")
+@Command(name = "clone", description = "Clone a linode")
 public class Clone extends BaseCommand {
     @Option(name = "-l", description = "label for the newly create VM (defaults to none)")
     public String label;
