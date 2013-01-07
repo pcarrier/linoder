@@ -1,6 +1,7 @@
 package com.github.pcarrier.linoder.cli;
 
 import com.github.pcarrier.linoder.cli.datacenter.List;
+import com.github.pcarrier.linoder.cli.linode.Boot;
 import com.github.pcarrier.linoder.cli.linode.Clone;
 import com.github.pcarrier.linoder.cli.linode.Remove;
 import com.github.pcarrier.linoder.cli.linode.Show;
@@ -18,7 +19,13 @@ public class Main {
         builder.withGroup("linode")
                 .withDescription("Operations on linodes")
                 .withDefaultCommand(com.github.pcarrier.linoder.cli.linode.List.class)
-                .withCommands(Clone.class, com.github.pcarrier.linoder.cli.linode.List.class, Show.class, Remove.class);
+                .withCommands(
+                        Boot.class,
+                        Clone.class,
+                        com.github.pcarrier.linoder.cli.linode.List.class,
+                        Show.class,
+                        Remove.class
+                );
 
         builder.withGroup("datacenter")
                 .withDescription("Operations on data centers")
