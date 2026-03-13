@@ -6,75 +6,105 @@
 
     <groupId>com.github.pcarrier.linoder</groupId>
     <artifactId>linoder</artifactId>
-    <version>1.0-SNAPSHOT</version>
-
-    <prerequisites>
-        <maven>3.0</maven>
-    </prerequisites>
+    <version>2.0-SNAPSHOT</version>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <debrepo.host>spotify-repository@nagihan.int.sto.spotify.net</debrepo.host>
-        <debrepo.distro>squeeze</debrepo.distro>
-        <debrepo.branch>testing</debrepo.branch>
-        <debrepo.path>/var/lib/debian-repository/${debrepo.distro}/pool/${debrepo.branch}/main</debrepo.path>
+        <kotlin.version>1.9.25</kotlin.version>
+        <serialization.version>1.6.3</serialization.version>
+        <okhttp.version>4.12.0</okhttp.version>
+        <clikt.version>3.5.4</clikt.version>
+        <kotlin.compiler.jvmTarget>11</kotlin.compiler.jvmTarget>
     </properties>
 
     <dependencies>
         <dependency>
-            <groupId>io.airlift</groupId>
-            <artifactId>airline</artifactId>
-            <version>0.5</version>
+            <groupId>org.jetbrains.kotlin</groupId>
+            <artifactId>kotlin-stdlib</artifactId>
+            <version>${kotlin.version}</version>
         </dependency>
 
         <dependency>
-            <groupId>us.monoid.web</groupId>
-            <artifactId>resty</artifactId>
-            <version>0.3.2</version>
-
-            <exclusions>
-                <exclusion>
-                    <groupId>com.google.guava</groupId>
-                    <artifactId>guava</artifactId>
-                </exclusion>
-            </exclusions>
+            <groupId>org.jetbrains.kotlinx</groupId>
+            <artifactId>kotlinx-serialization-json</artifactId>
+            <version>${serialization.version}</version>
         </dependency>
 
         <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
-            <version>14.0.1</version>
+            <groupId>com.squareup.okhttp3</groupId>
+            <artifactId>okhttp</artifactId>
+            <version>${okhttp.version}</version>
         </dependency>
 
         <dependency>
-            <groupId>com.github.peichhorn</groupId>
-            <artifactId>lombok-pg</artifactId>
-            <version>0.11.3</version>
-            <scope>provided</scope>
+            <groupId>com.github.ajalt.clikt</groupId>
+            <artifactId>clikt-jvm</artifactId>
+            <version>${clikt.version}</version>
         </dependency>
 
         <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.11</version>
+            <groupId>org.jetbrains.kotlin</groupId>
+            <artifactId>kotlin-test-junit5</artifactId>
+            <version>${kotlin.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>5.10.2</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
 
     <build>
+        <sourceDirectory>${project.basedir}/src/main/kotlin</sourceDirectory>
+        <testSourceDirectory>${project.basedir}/src/test/kotlin</testSourceDirectory>
+
         <plugins>
+            <plugin>
+                <groupId>org.jetbrains.kotlin</groupId>
+                <artifactId>kotlin-maven-plugin</artifactId>
+                <version>${kotlin.version}</version>
+                <configuration>
+                    <compilerPlugins>
+                        <plugin>kotlinx-serialization</plugin>
+                    </compilerPlugins>
+                </configuration>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.jetbrains.kotlin</groupId>
+                        <artifactId>kotlin-maven-serialization</artifactId>
+                        <version>${kotlin.version}</version>
+                    </dependency>
+                </dependencies>
+                <executions>
+                    <execution>
+                        <id>compile</id>
+                        <goals>
+                            <goal>compile</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>test-compile</id>
+                        <goals>
+                            <goal>test-compile</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
-                <version>2.0</version>
+                <version>3.5.2</version>
                 <configuration>
                     <transformers>
                         <transformer
                                 implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                            <mainClass>com.github.pcarrier.linoder.cli.Main</mainClass>
+                            <mainClass>com.github.pcarrier.linoder.cli.MainKt</mainClass>
                         </transformer>
                     </transformers>
-                    <!--<minimizeJar>true</minimizeJar>-->
                     <shadedArtifactAttached>true</shadedArtifactAttached>
                 </configuration>
                 <executions>
@@ -88,106 +118,9 @@
             </plugin>
 
             <plugin>
-                <artifactId>jdeb</artifactId>
-                <groupId>org.vafer</groupId>
-                <version>1.0.1</version>
-                <executions>
-                    <execution>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>jdeb</goal>
-                        </goals>
-                        <configuration>
-                            <deb>[[buildDir]]/[[artifactId]]_[[version]]_all.[[extension]]</deb>
-                            <timestamped>true</timestamped>
-                            <verbose>true</verbose>
-                            <dataSet>
-                                <data>
-                                    <src>${project.build.directory}/${project.build.finalName}-shaded.jar</src>
-                                    <type>file</type>
-                                    <mapper>
-                                        <type>perm</type>
-                                        <prefix>/usr/share/${project.name}</prefix>
-                                    </mapper>
-                                </data>
-                                <data>
-                                    <src>${project.basedir}/src/bin/${project.name}</src>
-                                    <type>file</type>
-                                    <mapper>
-                                        <type>perm</type>
-                                        <filemode>0755</filemode>
-                                        <prefix>/usr/bin</prefix>
-                                    </mapper>
-                                </data>
-                            </dataSet>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>exec-maven-plugin</artifactId>
-                <version>1.2.1</version>
-                <executions>
-                    <execution>
-                        <id>rsync</id>
-                        <phase>deploy</phase>
-                        <goals><goal>exec</goal></goals>
-                        <configuration>
-                            <executable>rsync</executable>
-                            <arguments>
-                                <argument>-av</argument>
-                                <argument>--include=*.deb</argument>
-                                <argument>--exclude=*</argument>
-                                <argument>${project.build.directory}/</argument>
-                                <argument>${debrepo.host}:${debrepo.path}/${project.name}</argument>
-                            </arguments>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>index</id>
-                        <phase>deploy</phase>
-                        <goals><goal>exec</goal></goals>
-                        <configuration>
-                            <executable>ssh</executable>
-                            <arguments>
-                                <argument>${debrepo.host}</argument>
-                                <argument>sp_build_apt_index</argument>
-                                <argument>${debrepo.distro}</argument>
-                                <argument>${debrepo.branch}</argument>
-                            </arguments>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.1</version>
-                <configuration>
-                    <source>1.6</source>
-                    <target>1.6</target>
-                </configuration>
-            </plugin>
-
-            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>2.14.1</version>
-                <configuration>
-                    <skip>true</skip>
-                </configuration>
-            </plugin>
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-deploy-plugin</artifactId>
-                <version>2.7</version>
-                <configuration>
-                    <skip>true</skip>
-                </configuration>
+                <version>3.2.5</version>
             </plugin>
         </plugins>
     </build>
