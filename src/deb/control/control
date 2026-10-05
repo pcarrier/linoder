@@ -5,5 +5,5 @@ Priority: optional
 Architecture: all
 Depends: java-runtime
 Maintainer: Pierre Carrier <pierre@gcarrier.fr>
-Description: jetty java servlet container
+Description: CLI client for the Linode API v4
 Distribution: development
